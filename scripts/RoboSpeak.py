@@ -28,24 +28,47 @@ WHITE = "\033[97m"
 RESET = "\033[0m"
 
 # Function to display ASCII art with random character colors
-def display_art(filename):
-    path = f"/home/pi/ascii_art/{filename}"
+def display_art():
+    folder_path = "/home/pi/ascii_art/"
     colors = [RED, GREEN, YELLOW, BLUE, PINK, CYAN]
+    
     try:
+        # Get all files in the folder
+        all_items = os.listdir(folder_path)
+        
+        # Filter to only include .txt files
+        valid_files = [f for f in all_items if f.endswith(".txt")]
+
+        # Check if the folder is empty of .txt files
+        if not valid_files:
+            print(f"\n[Warning: No .txt files found in {folder_path}]")
+            return
+
+        # Pick a random file and build the full path
+        chosen_file = random.choice(valid_files)
+        path = os.path.join(folder_path, chosen_file)
+
+        # Read and color the art
         with open(path, "r") as f:
             art = f.read()
+            
             if not art:
-                print(f"\n[Warning: {path} is empty!]")
+                print(f"\n[Warning: {chosen_file} is empty!]")
             else:
                 colored_art = ""
                 for char in art:
                     if char.isspace():
+                        # Keep spaces/newlines as they are so the shape doesn't break
                         colored_art += char
                     else:
+                        # Give every single character a random color
                         colored_art += f"{random.choice(colors)}{char}"
-                print(f"{colored_art}{RESET}")
+                
+                # Print the final product and reset the color at the end
+                print(colored_art + RESET)
+                
     except FileNotFoundError:
-        print(f"\n[Error: Cannot find file at {path}]")
+        print(f"\n[Error: The folder {folder_path} does not exist.]")
     except Exception as e:
         print(f"\n[Error: {e}]")
 
@@ -66,7 +89,7 @@ def display_header():
     # Re-display the Robot
     print("")
     display_art("robot_0.txt")
-
+    
     # Re-display the Menu in Green
     print(f"\n{GREEN}--- RoboSpeak (PiCar-X Speech System) ---")
     print(f"System: '{CYAN}/clear{GREEN}'")
@@ -111,7 +134,7 @@ print("")
 
 # Display the Art after loading
 print("")
-display_art("robot_0.txt")
+display_art()
 
 # Introduce Robot
 startup_speak("Hello I am RoboSpeak. Together we will dominate the planet.")
